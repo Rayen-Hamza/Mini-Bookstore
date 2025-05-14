@@ -8,10 +8,12 @@ import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.*;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.*;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -22,7 +24,7 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/signup", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/signup", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -30,6 +32,7 @@ public class SecurityConfig {
                 .and()
                 .logout()
                 .logoutSuccessUrl("/login");
+
 
         return http.build();
     }
@@ -43,8 +46,10 @@ public class SecurityConfig {
                 .build();
     }
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // Only for dev/testing
+        return new BCryptPasswordEncoder(); // Secure
     }
+
 }

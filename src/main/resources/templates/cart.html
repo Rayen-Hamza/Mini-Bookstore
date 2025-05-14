@@ -1,10 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Your Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container mt-5">
+
+
+    <div class="card shadow">
+        <div class="card-body">
+            <h2 class="card-title mb-4 text-center" th:text="#{cart.title}">🛒 Your Shopping Cart</h2>
+
+            <!-- Empty Cart Message -->
+            <div th:if="${#lists.isEmpty(items)}" class="alert alert-info text-center" th:text="#{cart.empty}">
+                Your cart is currently empty. <a href="/books" class="alert-link">Browse books</a>
+            </div>
+
+            <!-- Cart Table -->
+            <div th:unless="${#lists.isEmpty(items)}" class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Author</th>
+                        <th>Quantity</th>
+                        <th>Price per Item</th>
+                        <th>Total Price</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${items}">
+                        <td th:text="${item.book.title}">Book Title</td>
+                        <td th:text="${item.book.author}">Author</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <form th:action="@{/cart/decrement}" method="post" class="d-inline">
+                                    <input type="hidden" name="bookId" th:value="${item.book.id}" />
+                                    <button class="btn btn-sm btn-outline-secondary" type="submit">−</button>
+                                </form>
+
+                                <span th:text="${item.quantity}"></span>
+
+                                <form th:action="@{/cart/increment}" method="post" class="d-inline">
+                                    <input type="hidden" name="bookId" th:value="${item.book.id}" />
+                                    <button class="btn btn-sm btn-outline-secondary" type="submit">+</button>
+                                </form>
+                            </div>
+                        </td>
+
+                        <td th:text="${item.book.price + ' $'}">0.00</td>
+                        <td th:text="${item.totalPrice + ' $'}">0.00</td>
+                        <td>
+                            <form th:action="@{/cart/remove}" method="post">
+                                <input type="hidden" name="bookId" th:value="${item.book.id}" />
+                                <button class="btn btn-sm btn-danger" type="submit" th:text="#{cart.remove}">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Total Summary -->
+            <div class="d-flex justify-content-end mt-3">
+                <h4 th:utext="'<strong>' + #{cart.total} + '</strong> ' + ${total} + ' $'">Total: 0.00 $</h4>
+
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="/books" class="btn btn-outline-secondary" th:text="#{cart.continue}">← Continue Shopping</a>
+
+                <form th:action="@{/order}" method="post" onsubmit="return confirm('Are you sure you want to place the order?');">
+                    <button type="submit" class="btn btn-success" th:text="#{cart.checkout}">✅ Place Order</button>
+                </form>
+            </div>
+            <div th:if="${param.success}" class="alert alert-success text-center" th:text="#{cart.success}">
+                ✅ Your order has been placed successfully!
+            </div>
+
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

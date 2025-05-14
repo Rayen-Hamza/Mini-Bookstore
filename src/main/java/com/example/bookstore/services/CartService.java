@@ -38,4 +38,30 @@ public class CartService {
                 .mapToDouble(CartItem::getTotalPrice)
                 .sum();
     }
+
+    public void removeFromCart(Long bookId, HttpSession session) {
+        Map<Long, CartItem> cart = getCart(session);
+        cart.remove(bookId);
+    }
+
+    public void incrementQuantity(Long bookId, HttpSession session) {
+        Map<Long, CartItem> cart = getCart(session);
+        CartItem item = cart.get(bookId);
+        if (item != null) {
+            item.increment();
+        }
+    }
+
+    public void decrementQuantity(Long bookId, HttpSession session) {
+        Map<Long, CartItem> cart = getCart(session);
+        CartItem item = cart.get(bookId);
+        if (item != null) {
+            item.decrement();
+            if (item.getQuantity() <= 0) {
+                cart.remove(bookId);
+            }
+        }
+    }
+
+
 }
